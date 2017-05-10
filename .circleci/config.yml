@@ -1,0 +1,78 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2.7
+        environment:
+          DJANGO_VERSION=1.6
+      - image: circleci/python:2.7
+        environment:
+          DJANGO_VERSION=1.8
+    working_directory: ~/djblets
+    steps:
+      - checkout
+      - run:
+          name: Install nodejs
+          command: |
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68576280 86E50310
+            echo "deb http://deb.nodesource.com/node_7.x jessie main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq nodejs
+      - run:
+          name: Install django
+          command: |
+            if [[ "$DJANGO_VERSION" = "1.6.11" ]]; then
+              sudo pip install -U https://downloads.reviewboard.org/releases/Django/1.6/Django-1.6.11.6.tar.gz
+            else
+              sudo pip install -q Django==$DJANGO_VERSION
+            fi
+      - run:
+          name: Install other dependencies
+          command: |
+            sudo python setup.py develop
+            sudo pip install -r dev-requirements.txt
+      - run:
+          name: Run Tests
+          command: python ./tests/runtests.py
+  reviewboard:
+    docker:
+      - image: circleci/python:2.7
+        environment:
+          DJANGO_VERSION=1.6
+      - image: circleci/python:2.7
+        environment:
+          DJANGO_VERSION=1.8
+    working_directory: ~/djblets
+    steps:
+      - checkout
+      - run:
+          name: Apply patch
+          command: |
+            sudo pip install rbtools
+            rbt patch --api-token "$REVIEWBOARD_API_TOKEN" --server "$REVIEWBOARD_SERVER" --diff-revision "$REVIEWBOARD_DIFF_REVISION" "$REVIEWBOARD_REVIEW_REQUEST"
+      - run:
+          name: Install nodejs
+          command: |
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68576280 86E50310
+            echo "deb http://deb.nodesource.com/node_7.x jessie main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq nodejs
+      - run:
+          name: Install django
+          command: |
+            if [[ "$DJANGO_VERSION" = "1.6.11" ]]; then
+              sudo pip install -U https://downloads.reviewboard.org/releases/Django/1.6/Django-1.6.11.6.tar.gz
+            else
+              sudo pip install -q Django==$DJANGO_VERSION
+            fi
+      - run:
+          name: Install other dependencies
+          command: |
+            sudo python setup.py develop
+            sudo pip install -r dev-requirements.txt
+      - run:
+          name: Run Tests
+          command: python ./tests/runtests.py
+notify:
+  webhooks:
+    - url: http://trowbrds.ddns.net:8080/rbintegrations/circle-ci/webhook/

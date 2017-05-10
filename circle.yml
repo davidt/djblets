@@ -1,3 +1,0 @@
-dependencies:
-  override:
-    - python setup.py develop
