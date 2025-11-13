@@ -47,7 +47,7 @@ Support = 'https://www.reviewboard.org/support/'
 
 [tool.basedpyright]
 enableTypeIgnoreComments = true
-pythonVersion = "3.8"
+pythonVersion = "3.10"
 reportAny = "none"
 reportCallInDefaultInitializer = "none"
 reportConstantRedefinition = "none"
@@ -83,7 +83,7 @@ multi_line_output = 3
 [tool.ruff]
 line-length = 79
 preview = true
-target-version = "py38"
+target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = ["ANN", "COM", "C4", "D", "DJ", "DTZ", "E", "F", "FA", "G", "INT", "LOG", "N", "PIE", "PL", "PT", "Q", "RET", "RUF", "SIM", "TC", "UP", "W"]
