@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -55,6 +55,23 @@ _RATE_LIMIT_DATA = {
         DEFAULT_API_AUTHENTICATED_LIMIT_RATE,
         'api-authenticated-ratelimit'),
 }
+
+
+class UsageCount(TypedDict):
+    """Rate limit states for a given user or IP address.
+
+    Version Added:
+        6.0
+    """
+
+    #: The number of login attempts made.
+    count: int
+
+    #: The number of attempts allowed.
+    limit: int
+
+    #: The time left before the rate limit is over.
+    time_left: int
 
 
 def get_user_id_or_ip(
@@ -111,7 +128,7 @@ def get_usage_count(
     request: HttpRequest,
     increment: bool = False,
     limit_type: int = RATE_LIMIT_LOGIN,
-) -> dict[str, Any] | None:
+) -> UsageCount | None:
     """Return rate limit status for a given user or IP address.
 
     This method performs validation checks on the input parameters
@@ -132,17 +149,8 @@ def get_usage_count(
             The type of rate limit to check.
 
     Returns:
-        dict:
-        A dictionary with the following keys:
-
-        ``count`` (:py:class:`int`):
-            The number of login attempts made.
-
-        ``limit`` (:py:class:`int`):
-            The number of attempts allowed.
-
-        ``time_left`` (:py:class:`int`):
-            The time left before rate limit is over.
+        UsageCount:
+        The rate limit status.
 
     Raises:
         ValueError:

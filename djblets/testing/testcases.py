@@ -581,7 +581,8 @@ class TestModelsLoaderMixin(MixinParent):
             sys.modules[models_mod.__name__] = models_mod
 
         cls._models_loader_old_settings = settings.INSTALLED_APPS
-        settings.INSTALLED_APPS = list(settings.INSTALLED_APPS) + [
+        settings.INSTALLED_APPS = [
+            *settings.INSTALLED_APPS,
             cls.tests_app,
         ]
 
@@ -620,11 +621,12 @@ class TestModelsLoaderMixin(MixinParent):
         call_command('migrate', run_syncdb=True, verbosity=0,
                      interactive=False)
 
-        super(TestModelsLoaderMixin, cls).setUpClass()
+        super().setUpClass()
 
     @classmethod
-    def tearDownClass(cls):
-        super(TestModelsLoaderMixin, cls).tearDownClass()
+    def tearDownClass(cls) -> None:
+        """Tear down the test case class."""
+        super().tearDownClass()
 
         call_command('flush', verbosity=0, interactive=False)
 
@@ -641,8 +643,18 @@ class TestModelsLoaderMixin(MixinParent):
 
         assert cls.tests_app
 
+        for app_config in apps.get_app_configs():
+            if app_config.name == cls.tests_app:
+                app_label = app_config.label
+                break
+        else:
+            raise LookupError(
+                f'Unable to find matching app config for tests app '
+                f'{cls.tests_app}'
+            )
+
         apps.unset_installed_apps()
-        apps.all_models[cls.tests_app].clear()
+        apps.all_models[app_label].clear()
         apps.populate(settings.INSTALLED_APPS)
 
         # Set this free so the garbage collector can eat it.

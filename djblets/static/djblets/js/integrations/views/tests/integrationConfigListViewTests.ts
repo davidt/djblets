@@ -1,3 +1,16 @@
+import { suite } from '@beanbag/jasmine-suites';
+import {
+    beforeEach,
+    describe,
+    expect,
+    it,
+    spyOn,
+} from 'jasmine-core';
+
+import { ConfigFormsListItems } from 'djblets/configForms';
+import { IntegrationConfigListView } from 'djblets/integrations';
+
+
 suite('djblets/integrations/views/IntegrationConfigListView', function() {
     const template = _.template(dedent`
         <div class="djblets-c-integration-configs">
@@ -6,13 +19,13 @@ suite('djblets/integrations/views/IntegrationConfigListView', function() {
          </div>
         </div>
     `);
-    let collection;
-    let view;
+    let collection: ConfigFormsListItems;
+    let view: IntegrationConfigListView;
 
     beforeEach(function() {
         const $el = $(template()).appendTo($testsScratch);
 
-        view = new Djblets.IntegrationConfigListView({
+        view = new IntegrationConfigListView({
             configs: [
                 {
                     'editURL' : 'configs/1/',
@@ -190,21 +203,15 @@ suite('djblets/integrations/views/IntegrationConfigListView', function() {
             });
         });
 
-        describe('Actions', function() {
-            it('Delete', function() {
+        describe('Actions', () => {
+            it('Delete', async () => {
                 const config = collection.at(0);
-
                 spyOn(config, 'destroy').and.callThrough();
                 spyOn(config, 'sync');
 
-                spyOn($.fn, 'modalBox').and.callFake(
-                    options => options.buttons[1].click());
+                await view.listView.views[0]._onDeleteConfirmed();
 
-                $row1.find('.config-forms-list-action-delete').click();
-
-                expect($.fn.modalBox).toHaveBeenCalled();
                 expect(config.destroy).toHaveBeenCalled();
-
                 expect(collection.length).toBe(3);
                 expect(view.listView.$('tr').length).toBe(3);
             });
