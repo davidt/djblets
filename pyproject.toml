@@ -80,6 +80,24 @@ include_trailing_comma = true
 lines_after_imports = 2
 multi_line_output = 3
 
+[tool.pytest]
+python_files = ["tests.py", "test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+pythonpath = ["."]
+norecursedirs = ["djblets/htdocs"]
+testpaths = ["djblets"]
+
+addopts = ["--reuse-db"]
+
+# Require the following plugins
+required_plugins = [
+    "pytest-django",
+    "pytest-env",
+]
+
+DJANGO_SETTINGS_MODULE = "tests.settings"
+
 [tool.ruff]
 line-length = 79
 preview = true
