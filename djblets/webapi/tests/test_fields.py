@@ -147,7 +147,7 @@ class DateTimeFieldTypeTests(SpyAgency, TestCase):
         dt = datetime.datetime(2018, 2, 20, 13, 42, 0)
         self.assertTrue(timezone.is_naive(dt))
 
-        pst = ZoneInfo('US/Pacific')
+        pst = ZoneInfo('America/Los_Angeles')
 
         with timezone.override(pst):
             self.assertEqual(self.field_type.clean_value(dt),
@@ -166,7 +166,7 @@ class DateTimeFieldTypeTests(SpyAgency, TestCase):
         """Testing DateTimeFieldType.clean_value with timestamp string without
         timezone offset
         """
-        pst = ZoneInfo('US/Pacific')
+        pst = ZoneInfo('America/Los_Angeles')
 
         with timezone.override(pst):
             self.assertEqual(
